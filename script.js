@@ -5,6 +5,7 @@ const lyrics = document.getElementById("lyrics"),
       info = document.getElementById("info"),
       generate = document.getElementById("generate"),
       offsetInput = document.getElementById("offset"),
+      applyHeaders = document.getElementById("applyMeta"),
       audio = document.getElementById("audio");
 
 const buttons = document.querySelectorAll("button, label");
@@ -87,10 +88,12 @@ async function clearMetadata() {
 
 //lyric editor functions
 async function generateLyrics() {
-    if (title.value == "") return windowAlert("No title was given! You don't want a no-named file right?")
     if (lyrics.value == "") return windowAlert("There is literally no lyrics, what's a lyric file without lyrics?");
     if (music.value == "") return windowAlert("No music was chosen to sync the lyrics! I can't just guess the music playing!");
-
+    if (title.value == "") {
+        if (!(await windowConfirm("No title was given! This will be replaced with the name of the file."))) return;
+        title.value = music.files[0].name;
+    }
     lyricInput = lyrics.value.split("\n");
     timestamped = 0;
 
@@ -232,6 +235,7 @@ function finishFile() {
     })    
     
     var result = `[ar:${data.artist}]\n[al:${data.album}]\n[ti:${data.title}]\n[au:${data.author}]\n[length:${sec2time(audio.duration)}]\n[by:${data.by}]\n[re:mehusername's LRC File Editor]\n[ve:1.0.0]\n`;
+    if (!applyHeaders.value) result = "";
     lyricElements.forEach((element) => {
         var lyricText = element.getElementsByClassName("lyricText")[0].textContent;
         var timestamp = element.getElementsByClassName("timestamp")[0].textContent;
@@ -242,10 +246,10 @@ function finishFile() {
         type: 'text/plain'
     });
     
-    if (window.navigator.msSaveOrOpenBlob) {
-        window.navigator.msSaveOrOpenBlob(lrcFile, lrcFile.name);
-        return;
-    }
+    //if (window.navigator.msSaveOrOpenBlob) {
+        //window.navigator.msSaveOrOpenBlob(lrcFile, lrcFile.name);
+        //return;
+    //}
     
     var link = document.createElement("a");
     var url = URL.createObjectURL(lrcFile);
