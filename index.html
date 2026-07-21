@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="stylesheets/style.css">
+    <link rel="stylesheet" href="stylesheets/theme.css">
+    <link rel="stylesheet" href="stylesheets/errWindow.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="imgs/icon192x192.png">
+    <title>LRC File Editor</title>
+</head>
+<body style="display:flex;flex-direction:column; justify-content:center;align-items:center;">
+    <div style="display:flex; align-items:center; justify-content:center; width: 90%; padding: 10px;">
+        <div style="display:flex;justify-content:center;align-items:center;position:relative;width:50px;height:50px;">
+            <input id="themeButton" type="checkbox" onclick="toggleTheme(this)" style="display:none;">
+            <label id="themeToggle" for="themeButton">
+                <img src="imgs/sunrays.png" id="sunrays">
+            </label>
+        </div>
+        <div style="display:flex;align-items:flex-start;flex-direction:column;padding:0">
+            <h4 style="margin:0;padding:0 10px;">mehusername's</h4>
+            <h4 style="font-size:2em;margin:0;padding:0 10px;text-align:left;">LRC File Editor</h4>
+        </div>
+    </div>
+    
+    <div id="clone">
+        <div class="timestamp" onclick="changeTime(this.parentElement)">00:00.00</div>
+        <div class="lyricText" onclick="goToLine(this.parentElement)">-</div>
+    </div>
+    
+    <dialog id="errDialog">
+        <div id="errWindow">
+        <div id="errTitle">Window Title</div>
+        <div id="errDesc">Error Description</div>
+        <div style="display: flex; justify-content:center; align-items: center;">
+             <button class="controls" id="cancel">Hell nah</button>
+             <button class="controls" id="confirm">Yeah, okay</button>
+         </div>
+         </div>
+    </dialog>
+    
+    <div id="info">
+        <div class="fileInput" style="justify-content:center;">
+            <label for="lrc" class="customLabel">Upload LRC / Text File</label>
+            <input type="file" id="lrc" accept=".lrc,.txt">
+        </div>
+        
+        <hr style="border-top: 1px solid;padding:0;width:90%">
+        
+        <div class="inputCont"><div>Title:<span class="required">*</span></div><input id="title" type="text"></div>
+        <div class="inputCont"><div>Album:</div><input id="album" type="text"></div>
+        <div class="inputCont"><div>Artist:</div><input id="artist" type="text"></div>
+        <div class="inputCont"><div>Author:</div><input id="author" type="text"></div>
+        <div class="inputCont"><div>File Author:</div><input id="by" type="text"></div>
+    
+        <textarea id="lyrics" placeholder="Enter lyrics here..."></textarea>
+        <div id="lyricControls">
+            <button onclick="clearTimestamps()">Clear timestamps</button>
+            <button onclick="clearMetadata()">Clear metadata</button>
+        </div>
+    
+        <div class="fileInput">
+            <label for="music" class="customLabel">Upload Music</label>
+            <div id="musicSelected"></div>
+            <input type="file" id="music" name="music" accept="audio/*">
+        </div>
+        
+        <button onclick="generateLyrics()" id="createFile">Create File</button>
+    </div>
+    
+    <div id="generate">
+        <audio id="audio" controls style="width:90%;">
+            <source id="source"></source>
+        </audio>
+        <div id="lyricDiv"></div>
+        <div style="display:flex; align-items: space-between; justify-content: center; width: 90%;">
+            <button id="nextLine" onclick="nextLine()">Next Line</button>
+            <div style="display:flex;align-items:center;justify-content:center;">
+                <button onclick="changeOffset(-100)">-</button>
+                <input id="offset" placeholder="Offset" size="5%" value="0" style="text-align: center;">
+                <button onclick="changeOffset(100)">+</button>
+                <button onclick="applyOffset()">Apply Offset</button>
+            </div>
+            <button id="clearTimes" onclick="clearTimes()">Clear Times</button>
+        </div>
+        <button id="finishFile" onclick="finishFile()">Finish and Download File</button>
+    </div>
+    <script type="text/javascript" src="errHandler.js" defer></script>
+    <script type="text/javascript" src="script.js" defer></script>
+</body>
+</html>
