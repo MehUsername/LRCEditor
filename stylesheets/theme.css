@@ -5,16 +5,18 @@
     
     border-radius: 50%;
     margin-right: 10px;
-    width: 5px;
-    height: 5px;
+    width: 35px;
+    height: 35px;
     
     display: flex;
     align-items: center;
     justify-content: center;
     
-    background-image: radial-gradient(circle at 10px 10px, transparent 0, transparent 30px, white 30px);
-    background-color: black;
+    background-image: radial-gradient(circle at 10px 10px, transparent 0, transparent 29px, white 30px);
+    background-position: 20px 20px;
+    background-color: #12131a;
     background-repeat: no-repeat;
+    transform: scale(0.5);
     transition: 1s ease;
 }
 #sunrays {
@@ -22,19 +24,17 @@
     width: 50px;
     height: 50px;
     
-    transform: rotate(0);
+    transform: scale(2.5);
     opacity: 1;
     transition: all 1s ease, transform 1.5s ease;
 }
 
 #themeButton:checked + #themeToggle {
-    width: 35px;
-    height: 35px;
+    transform: scale(1);
+    background-position: 0;
     background-color: transparent;
 }
 #themeButton:checked + #themeToggle > #sunrays {
-    width: 100px;
-    height: 100px;
-    transform: rotate(-90deg);
+    transform: scale(2) rotate(-90deg);
     opacity: 0;
 }

@@ -1,17 +1,19 @@
 const lyrics = document.getElementById("lyrics"),
-      lrcInput = document.getElementById("lrc"),
-      music = document.getElementById("music"),
-      musicSelected = document.getElementById("musicSelected"),
-      info = document.getElementById("info"),
-      generate = document.getElementById("generate"),
-      offsetInput = document.getElementById("offset"),
-      applyHeaders = document.getElementById("applyMeta"),
-      audio = document.getElementById("audio");
+    lrcInput = document.getElementById("lrc"),
+    fileMetadata = document.getElementById("fileMetadata"),
+    music = document.getElementById("music"),
+    musicSelected = document.getElementById("musicSelected"),
+    info = document.getElementById("info"),
+    generate = document.getElementById("generate"),
+    offsetInput = document.getElementById("offset"),
+    fileControls = document.getElementById("fileControls"),
+    errorMessage = document.getElementById("errorMessage"),
+    audio = document.getElementById("audio");
 
-const buttons = document.querySelectorAll("button, label");
+const buttons = document.querySelectorAll("button, .customLabel");
 
 const lyricDiv = document.getElementById("lyricDiv"),
-      lyricFrame = document.getElementById("clone");
+    lyricFrameTemplate = document.getElementById("clone");
 
 const data = {
     title: "",
@@ -25,27 +27,27 @@ let lyricElements = [];
 let isPlaying = false,
     isEditing = false,
     posInLyric = -1;
-    offset = 0;
-    timestamped = 0;
+offset = 0;
+timestamped = 0;
 
 let lyricInput,
     previewInterval;
 
 function sec2time(timeInSeconds) {
-    var pad = function(num, size) { return ('000' + num).slice(size * -1); },
-    time = parseFloat(timeInSeconds).toFixed(2),
-    minutes = Math.floor(time / 60) % 60,
-    seconds = Math.floor(time - minutes * 60),
-    milliseconds = time.slice(-2);
+    let pad = function (num, size) { return ('000' + num).slice(size * -1); },
+        time = parseFloat(timeInSeconds).toFixed(2),
+        minutes = Math.floor(time / 60) % 60,
+        seconds = Math.floor(time - minutes * 60),
+        milliseconds = time.slice(-2);
 
     return pad(minutes, 2) + ':' + pad(seconds, 2) + '.' + pad(milliseconds, 2);
 }
 function time2sec(timestamp) {
-    var regx = /(\d+):(\d{1,2})\.(\d+)/g;
-    var match = regx.exec(timestamp);
-        
+    let regx = /(\d+):(\d{1,2})\.(\d+)/g;
+    let match = regx.exec(timestamp);
+
     if (!match) return;
-    return ((+match[1]) * 60) + (+match[2]) + ((+match[3]) / 100);
+    return ((+match[1]) * 60) + (+match[2]) + ((+match[3]) / 10 ** (+match[3].length));
 }
 function trim(str) {
     return str.replace(/^\s+|\s+$/g, "");
@@ -54,22 +56,22 @@ function trim(str) {
 //theme functions
 function switchTheme(bool) {
     document.body.style.backgroundColor = bool ? "#12131a" : "white";
-    
+
     document.getElementById("errWindow").style.backgroundColor = bool ? "#12131a" : "white";
     document.getElementById("errTitle").style.color = bool ? "black" : "white";
     document.getElementById("errTitle").style.backgroundColor = bool ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)";
-    
+
     document.querySelectorAll("body *").forEach((elem) => elem.style.color = bool ? "white" : "black");
     buttons.forEach((elem) => {
-        var style = window.getComputedStyle(elem),
+        let style = window.getComputedStyle(elem),
             col = style.getPropertyValue('background-color').match(/\d+/g);
-            
-        elem.style.backgroundColor = bool ? `rgba(${col[0]},${col[1]},${col[2]}, 0.35)` : `rgba(${col[0]},${col[1]},${col[2]}, 1)`;
+
+        elem.style.backgroundColor = bool ? `rgba(${col[0]},${col[1]},${col[2]}, 0.35)` : null;
     })
 }
 function toggleTheme(checkbox) {
-    var checked = checkbox.checked;
-    
+    let checked = checkbox.checked;
+
     localStorage.setItem("darkTheme", checked);
     switchTheme(checked);
 }
@@ -97,38 +99,39 @@ async function generateLyrics() {
     lyricInput = lyrics.value.split("\n");
     timestamped = 0;
 
-    for (var i = 0; i < lyricInput.length; i++) {
-        var clone = lyricFrame.cloneNode(true);
-        var timestamp = clone.getElementsByClassName("timestamp")[0];
-        var lyricText = clone.getElementsByClassName("lyricText")[0];
-        lyricText.textContent = trim(lyricInput[i]);
+    for (let i = 0; i < lyricInput.length; i++) {
+        let cloneContent = lyricFrameTemplate.content;
 
-        clone.classList.add("lyricFrame");
-        clone.removeAttribute("id");
+        let lyricFrame = cloneContent.querySelector(".lyricFrame");
+        let timestamp = lyricFrame.querySelector(".timestamp");
+        let lyricText = lyricFrame.querySelector(".lyricText");
+        lyricText.textContent = trim(lyricInput[i]);
 
         if (lyricInput[i] == "") {
             timestamp.textContent = "-";
             continue;
         }
-        
-        var match = /\[(\d+:\d{1,2}\.\d+)](?!\s*$)/g.exec(lyricInput[i]);
+
+        let match = /\[(\d+:\d{1,2}\.\d+)](?!\s*$)/g.exec(lyricInput[i]);
         if (match) {
             posInLyric++;
-        
-            var secs = time2sec(match[1]);
-            clone.dataset.seconds = secs.toString();
-            clone.dataset.lyricPos = posInLyric.toString();
-            
+
+            let secs = time2sec(match[1]);
+
+            lyricFrame.dataset.seconds = secs.toString();
+            lyricFrame.dataset.lyricPos = posInLyric.toString();
+
             timestamp.textContent = match[1];
             lyricText.textContent = lyricInput[i].replace(/\[.*?]/, "");
-            
+
             timestamped++;
         }
-        
+
+        let clone = cloneContent.cloneNode(true);
+        lyricElements.push(clone.querySelector(".lyricFrame"));
         lyricDiv.appendChild(clone);
-        lyricElements.push(clone);
     }
-    
+
     if (timestamped != 0 && timestamped < lyricElements.length) {
         if (!(await windowConfirm("Lines without timestamps will be removed from the editor. Proceed to the editor?"))) {
             lyricDiv.textContent = "";
@@ -141,66 +144,78 @@ async function generateLyrics() {
             element.remove();
         })
     }
-    
+
     Object.keys(data).forEach((key) => {
-        data[key] = document.getElementById(key).value;
+        data[key] = fileMetadata.elements[key].value;
     });
-    
-    var musicUrl = URL.createObjectURL(music.files[0]);
+
+    let musicUrl = URL.createObjectURL(music.files[0]);
     audio.addEventListener("load", () => {
         URL.revokeObjectURL(musicUrl);
     });
-    
+
     posInLyric = -1;
     isEditing = true;
     audio.src = musicUrl;
     info.style.display = "none";
     generate.style.display = "flex";
+
+    document.querySelector("#description").innerHTML = "Clicking the timestamp in the line sets the timestamp to the current time of the music.<br>Clicking the lyric text will jump to that line in the music.";
 }
 
 function changeOffset(value) {
     offset += value;
     offsetInput.value = offset / 1000;
 }
-function applyOffset() {
-    lyricElements.forEach((element) => {
-        if (!element.dataset.seconds) return;
-        var result = Math.max(0, Number(element.dataset.seconds) + (offset / 1000));
-        
+function applyOffset(allLines) {
+    const offsetSeconds = offset / 1000;
+
+    const updateElement = (element) => {
+        if (!element || !element.dataset.seconds) return;
+
+        const result = Math.max(0, Number(element.dataset.seconds) + offsetSeconds);
         element.dataset.seconds = result.toString();
-        element.getElementsByClassName("timestamp")[0].textContent = sec2time(result);
-    })
+
+        const timestampEl = element.querySelector(".timestamp");
+        if (timestampEl) timestampEl.textContent = sec2time(result);
+    };
+
+    if (allLines) {
+        lyricElements.forEach(updateElement);
+    } else {
+        updateElement(lyricElements[posInLyric]);
+    }
+
     offset = 0;
     offsetInput.value = 0;
 }
-
 function goToLine(element) {
     if (!element) return;
     if (!element.dataset.lyricPos) return;
     if (lyricElements[posInLyric]) lyricElements[posInLyric].id = "";
-    
+
     posInLyric = Number(element.dataset.lyricPos);
     audio.currentTime = Number(element.dataset.seconds);
 }
 function changeTime(element) {
     if (!element.dataset.lyricPos) return;
     if (Number(element.dataset.lyricPos) != posInLyric) return;
-    var timestamp = element.getElementsByClassName("timestamp")[0];
-    
+    let timestamp = element.getElementsByClassName("timestamp")[0];
+
     element.dataset.seconds = audio.currentTime.toString();
-    
+
     timestamp.textContent = sec2time(audio.currentTime);
 }
 function nextLine() {
     posInLyric++;
     posInLyric = Math.min(posInLyric, lyricElements.length - 1);
-    
+
     if (!isPlaying) return;
-    if (posInLyric > lyricElements.length-1) return;
-    
-    var prevElement = lyricElements[posInLyric-1];
-    var element = lyricElements[posInLyric];
-    
+    if (posInLyric > lyricElements.length - 1) return;
+
+    let prevElement = lyricElements[posInLyric - 1];
+    let element = lyricElements[posInLyric];
+
     if (prevElement) prevElement.id = "";
 
     element.getElementsByClassName("timestamp")[0].textContent = sec2time(audio.currentTime);
@@ -208,7 +223,7 @@ function nextLine() {
     element.dataset.seconds = audio.currentTime.toString();
     element.dataset.lyricPos = posInLyric.toString();
 
-    element.scrollIntoView({ behavior: "smooth", block: "center", inline: "center"});
+    element.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
     element.id = "currentLyric";
 }
 async function clearTimes() {
@@ -219,61 +234,91 @@ async function clearTimes() {
         element.getElementsByClassName("timestamp")[0].textContent = "00:00.00";
         element.id = "";
     });
-    
-    lyricElements[0].scrollIntoView({ behavior: "smooth", block: "center", inline: "center"});
-    
+
+    lyricElements[0].scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+
     audio.pause();
     audio.currentTime = 0;
     posInLyric = -1;
 }
-function finishFile() {
-    Array.from(lyricElements).every(function(element, i) {
+async function finishFile() {
+    const allTimestamped = Array.from(lyricElements).every((element) => {
         if (!element.dataset.seconds) {
             windowAlert("Record all timestamps first before downloading!");
             return false;
-        } else return true;
-    })    
-    
-    var result = `[ar:${data.artist}]\n[al:${data.album}]\n[ti:${data.title}]\n[au:${data.author}]\n[length:${sec2time(audio.duration)}]\n[by:${data.by}]\n[re:mehusername's LRC File Editor]\n[ve:1.0.0]\n`;
-    if (!applyHeaders.value) result = "";
+        }
+        return true;
+    });
+    if (!allTimestamped) return;
+
+    const applyHeaders = fileControls.elements["applyMeta"];
+    const askSave = fileControls.elements["askSave"];
+
+    let result = `[ar:${data.artist}]\n[al:${data.album}]\n[ti:${data.title}]\n[au:${data.author}]\n[length:${sec2time(audio.duration)}]\n[by:${data.by}]\n[re:mehusername's LRC File Editor]\n[ve:1.0.0]\n`;
+    if (!applyHeaders.checked) result = "";
     lyricElements.forEach((element) => {
-        var lyricText = element.getElementsByClassName("lyricText")[0].textContent;
-        var timestamp = element.getElementsByClassName("timestamp")[0].textContent;
+        let lyricText = element.getElementsByClassName("lyricText")[0].textContent;
+        let timestamp = element.getElementsByClassName("timestamp")[0].textContent;
         result += `[${timestamp}]${lyricText}\n`;
     })
-    
-    var lrcFile = new File([result], `${data.artist ? `${data.artist} - ` : ""}${data.title}`, {
+
+    if (askSave.checked) {
+        try {
+            const handle = await window.showSaveFilePicker({
+                suggestedName: `${data.artist ? `${data.artist} - ` : ""}${data.title}.lrc`,
+                types: [{
+                    description: 'LRC File',
+                    accept: {
+                        'text/plain': ['.lrc', '.txt'],
+                    },
+                }],
+            });
+
+            const writable = await handle.createWritable();
+            await writable.write(result);
+            await writable.close();
+
+            errorMessage.textContent = "";
+            return;
+        } catch (err) {
+            if (err.name === "AbortError") {
+                errorMessage.textContent = `File save was aborted.`;
+                return;
+            }
+            errorMessage.textContent = `showSaveFilePicker failed, falling back to anchor download: ${err.message}`;
+        }
+    }
+
+    let lrcFile = new File([result], `${data.artist ? `${data.artist} - ` : ""}${data.title}.lrc`, {
         type: 'text/plain'
     });
-    
-    //if (window.navigator.msSaveOrOpenBlob) {
-        //window.navigator.msSaveOrOpenBlob(lrcFile, lrcFile.name);
-        //return;
-    //}
-    
-    var link = document.createElement("a");
-    var url = URL.createObjectURL(lrcFile);
-    
+
+    let link = document.createElement("a");
+    let url = URL.createObjectURL(lrcFile);
+
     link.href = url;
-    link.download = `${lrcFile.name}.lrc`;    
-    
+    link.download = `${lrcFile.name}.lrc`;
+
     document.body.appendChild(link);
     link.click();
-    
+
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 }
-
 function previewLyric() {
-    var prevElement = lyricElements[posInLyric];
-    var element = lyricElements[posInLyric+1];
-    
+    let prevElement = lyricElements[posInLyric];
+    let element = lyricElements[posInLyric + 1];
+
     if (!element) return;
     if (!element.dataset.lyricPos) return;
     if (Number(element.dataset.seconds) > audio.currentTime) return;
     if (prevElement) prevElement.id = "";
-    
-    element.scrollIntoView({ behavior: "smooth", block: "center", inline: "center"});
+
+    lyricDiv.scrollTo({
+        top: element.offsetTop - lyricDiv.offsetTop - (lyricDiv.clientHeight / 2) + (element.clientHeight / 2),
+        // left: element.offsetLeft - lyricDiv.offsetLeft - (lyricDiv.clientWidth / 2) + (element.clientWidth / 2),
+        behavior: 'smooth'
+    });
     element.id = "currentLyric";
     posInLyric++;
 }
@@ -288,15 +333,15 @@ audio.onplay = () => {
 }
 audio.onseeked = () => {
     clearInterval(previewInterval);
-    var tempPos = -1;
+    let tempPos = -1;
     posInLyric = -1;
-    
+
     lyricElements.forEach((element) => element.id = "");
-    for (var element, i=0, n=lyricElements.length; i < n; i++) {
+    for (let element, i = 0, n = lyricElements.length; i < n; i++) {
         if (element = lyricElements[posInLyric], !element) break;
         if (!element.dataset.lyricPos) break;
         if (Number(element.dataset.seconds) > audio.currentTime) break;
-                
+
         tempPos++;
     }
     posInLyric = tempPos;
@@ -306,39 +351,57 @@ music.onchange = () => {
     if (!music.files[0]) return;
     musicSelected.textContent = music.files[0].name;
 }
+lyricDiv.onclick = (e) => {
+    const parentElement = e.target.parentElement;
+    const target = e.target
+    if (target.classList.contains("timestamp")) {
+        changeTime(parentElement);
+    } else if (target.classList.contains("lyricText")) {
+        goToLine(parentElement);
+    }
+}
 lrcInput.onchange = () => {
     if (!lrcInput.files[0]) return;
-    if (lrcInput.files[0].type != "application/lrc") return windowAlert("That's not a LRC file dude.");
-    var pattern = /\[ar:\s*(?<artist>.+?)]|\[al:\s*(?<album>.+?)]|\[ti:\s*(?<title>.+?)]|\[au:\s*(?<author>.+?)]|\[by:\s*(?<by>.+?)]/g;
-    
-    var fileReader = new FileReader();
+    if (lrcInput.files[0].type != "application/lrc") {
+        const allowedExtensions = ['lrc', 'txt'];
+        const file = lrcInput.files[0];
+        const extension = file.name.split('.').pop().toLowerCase();
+
+        if (!allowedExtensions.includes(extension)) {
+            return windowAlert("That's not a LRC file dude.");
+        }
+        //fallback when nothing appears
+    }
+    let pattern = /\[ar:\s*(?<artist>.+?)]|\[al:\s*(?<album>.+?)]|\[ti:\s*(?<title>.+?)]|\[au:\s*(?<author>.+?)]|\[by:\s*(?<by>.+?)]/g;
+
+    let fileReader = new FileReader();
     fileReader.readAsText(lrcInput.files[0]);
-    
+
     fileReader.onloadend = () => {
         if (!fileReader.result) return;
-        
-        var matches = fileReader.result.matchAll(pattern);
+
+        let matches = fileReader.result.matchAll(pattern);
         for (const match of matches) {
             Object.entries(match.groups).forEach(([key, value]) => {
                 if (!value) return;
                 document.getElementById(key).value = value ? value : "";
-           });
+            });
         }
-        
+
         lyrics.value = fileReader.result.replace(/\s*\[[a-zA-Z]*:.*?]\s*/g, "");
     }
 }
 window.onbeforeunload = (event) => {
     if (!isEditing) return;
-    
+
     event.preventDefault();
     event.returnValue = true;
 }
 
 //theme set
 window.onload = () => {
-    var theme = localStorage.getItem("darkTheme") === "true";
-    
+    let theme = localStorage.getItem("darkTheme") === "true";
+
     document.getElementById("themeButton").checked = theme;
     switchTheme(theme);
 }

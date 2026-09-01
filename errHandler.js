@@ -20,11 +20,9 @@ function buttonResolver() {
     
 function changeLockState() {
     if (!locked) {
-        document.body.style.height = "100%";
         document.body.style.overflow = "hidden";
         locked = true;
     } else {
-        document.body.style.height = "unset";
         document.body.style.overflow = "visible";
         locked = false;
     }
@@ -35,11 +33,16 @@ async function windowAlert(desc) {
     
     errTitle.textContent = "Woah there!";
     errDesc.textContent = desc;
+    cancelButton.style.display = "none";
+
+    cancelButton.tabIndex = confirmButton.tabIndex = 0;
     
     errDialog.showModal();
     
     confirmButton.addEventListener("click", buttonResolver, {once: true});
     await waitForPress();
+
+    cancelButton.tabIndex = confirmButton.tabIndex = -1;
     errDialog.close();
     
     changeLockState();
@@ -48,9 +51,11 @@ async function windowAlert(desc) {
 async function windowConfirm(desc) {
     changeLockState();
     
-    cancelButton.style.display = "inline";
+    cancelButton.style.display = "flex";
     errTitle.textContent = "You sure?";
     errDesc.textContent = desc;
+
+    cancelButton.tabIndex = confirmButton.tabIndex = 0;
     
     errDialog.showModal();
     
@@ -62,6 +67,7 @@ async function windowConfirm(desc) {
     confirmButton.removeEventListener("click", buttonResolver);
     cancelButton.removeEventListener("click", buttonResolver);
     
+    cancelButton.tabIndex = confirmButton.tabIndex = -1;
     errDialog.close();
     
     changeLockState();

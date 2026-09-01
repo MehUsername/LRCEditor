@@ -1,0 +1,16 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+    
+        {
+            "type": "chrome",
+            "request": "launch",
+            "name": "Open index.html",
+            "file": "d:\\Luke Gulaman's BIG stuff\\Other BIG STUFF\\LRCEditor\\LRCEditor\\index.html",
+            "runtimeArgs": ["--allow-file-access-from-files", "--disable-web-security"]
+        }
+    ]
+}

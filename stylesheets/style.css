@@ -6,39 +6,142 @@
     border-radius: 5px;
     transition: 0.25s;
 }
+html {
+    padding: 0;
+    margin: 0;
+    width: 100vw;
+    height: 100vh;
+    scrollbar-gutter: stable;
+}
 body {
     display: flex;
     padding: 0;
-    align-content: center;
+    margin: 0 auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 760px;
 }
+
+i {
+    padding: 0;
+}
+
+#pageTitle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+}
+
+#pageTitle #themeButtonCont {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 50px;
+    height: 50px;
+}
+
+#pageTitle #titleCont {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
+    white-space: nowrap;
+    padding: 0
+}
+
+#pageTitle #titleCont h4 {
+    margin: 0;
+    padding: 0 10px;
+}
+
+#pageTitle #titleCont h3 {
+    font-size: 2em;
+    margin: 0;
+    padding: 0 10px;
+    text-align: left;
+}
+
+.disclaimer, #description {
+    font-size: 0.9em;
+    opacity: 0.5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 80%
+}
+#description:before {
+    content: "\f05a";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+
 h1 {
     font-size: 2.5em;
 }
+
 label {
     user-select: none;
     display: inline-block;
-    -webkit-tap-highlight-color: transparent;    
+    -webkit-tap-highlight-color: transparent;
 }
 button {
     user-select: none;
     padding: 15px;
     border: none;
 }
-input, textarea {
-    background-color: rgba(0,0,0,0);
+img {
+    user-select: none;
+    -webkit-user-drag: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+input,
+textarea {
+    background-color: rgba(0, 0, 0, 0);
     border: 1px solid grey;
     transition: 0s outline;
 }
+
 input[type="file"] {
-    display: none;
+    opacity: 0;
+    position: absolute;
 }
 
-button:active, label:active {
+button:active,
+.customLabel:active {
     transform: scale(0.95);
     filter: brightness(80%);
 }
-input:focus, textarea:focus {
+input:focus,
+textarea:focus,
+.fileInput:has(input:focus) label {
     outline: 2px solid;
+}
+
+#fileMetadata {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0;
+    width: 83.5%;
+}
+#fileMetadata div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 40px;
+    width: 100%;
+    flex-grow: 1;
+    padding: 0;
+    margin: 0;
 }
 
 .fileInput {
@@ -48,27 +151,31 @@ input:focus, textarea:focus {
     text-wrap: nowrap;
     border: 1px dashed;
     margin-bottom: 10px;
-    height: 40px;
     width: 80%;
 }
+
 .required {
     margin: 0;
     padding: 0;
     color: red !important;
 }
+
 #musicSelected {
     display: block;
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: 0.8em;
 }
+
 .customLabel {
     display: inline-block;
+    text-align: center;
     background-color: rgb(225, 225, 225);
     font-size: 90%;
     padding: 10px;
     cursor: pointer;
 }
+
 #createFile {
     text-align: center;
     background-color: rgb(45, 125, 255);
@@ -76,24 +183,27 @@ input:focus, textarea:focus {
     text-align: center;
     width: 30%;
 }
-#lyricControls {
-    width: 85%;
+
+#dataControls {
+    width: 83.5%;
     height: 30px;
     padding: 0;
     margin: 0;
     margin-bottom: 10px;
-    
+
     display: flex;
     justify-content: flex-start;
     align-items: center;
 }
-#lyricControls button {
+
+#dataControls button {
     flex-grow: 1;
     height: 30px;
     padding: 0;
 }
 
-#info, #generate {
+#info,
+#generate {
     width: 100%;
     height: 100%;
     display: flex;
@@ -105,6 +215,7 @@ input:focus, textarea:focus {
 #info {
     display: flex;
 }
+
 #generate {
     display: none;
 }
@@ -113,16 +224,27 @@ input:focus, textarea:focus {
     font-weight: bold;
     opacity: 1;
 }
-#currentLyric > .lyricText {
-    scale: 1.1;    
+
+#currentLyric>.lyricText {
+    scale: 1.1;
+}
+
+#nextLine,
+#clearTimes {
+    font-size: 2em;
+    color: white !important;
+    flex: 1;
+}
+#nextLine i,
+#clearTimes i {
+    color: white !important;
 }
 
 #nextLine {
-    color: white !important;
     background-color: green;
 }
+
 #clearTimes {
-    color: white !important;
     background-color: orange;
 }
 
@@ -132,41 +254,109 @@ input:focus, textarea:focus {
     height: 200px;
     resize: none;
 }
+
 #lyricDiv {
     width: 90%;
     height: 50vh;
     border: 1px solid;
     overflow: scroll;
     overflow-x: hidden;
-    padding-left: 0;
+    padding: 0;
 }
 
-#clone {
-    display: none;
-}
-
-.inputCont {
+#lyricControls {
     display: flex;
-    justify-content: space-between;
+    align-items: space-between;
+    justify-content: center;
+    width: 90%;
+}
+
+#offsetControls {
+    display: flex;
     align-items: center;
-    height: 40px;
-    width: 80%;
+    flex-direction: column;
+    padding: 0 8px;
+    margin: 0;
+    gap: 5px;
+}
+
+#offsetControls div {
+    display: flex;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+#offsetControls div:nth-child(2) {
+    flex-direction: column;
+}
+
+#offsetControls div * {
+    flex-grow: 1;
+}
+
+#fileControls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: start;
+    gap: 5px;
+}
+#fileControls div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0 0 2em;
+    margin: 0;
+}
+#fileControls h2 {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 0 0 100%;
+    border-bottom: 1px solid;
+    border-radius: 0;
+    font-size: 1.5em;
+}
+.fileControl label {
+    margin: 0;
+    padding: 0 0 0 1em;
+    font-size: 1.1em;
+}
+.fileControl label span {
+    opacity: 0.5;
+    font-size: 0.9em;
+    border-radius: 0;
+    margin-left: 15px;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+#errorMessage {
+    color: rgb(255, 100, 100) !important;
 }
 
 .lyricFrame {
     display: flex;
     height: min-content;
+    user-select: none;
     transition: 0.25s all, 0s font-weight;
     opacity: 0.5;
     padding: 0;
 }
+
+.lyricFrame:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
 .timestamp {
     font-size: 0.9em;
     border-right: 1px solid;
     border-radius: 0;
     text-align: center;
-    width: 15%;
+    width: 12%;
 }
+
 .lyricText {
     scale: 1;
     padding-left: 5%;

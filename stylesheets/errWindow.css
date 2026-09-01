@@ -49,6 +49,7 @@
 #errWindow {
     height: max-content;
     width: 75%;
+    max-width: 400px;
     
     background-color: white;
     text-align: center;
@@ -68,6 +69,7 @@
     background-color: rgba(0,0,0,0.10);
     border-radius: 5px 5px 0 0;
     font-weight: bold;
+    font-size: 1.5em;
     
     display: flex;
     align-items: center;
@@ -76,9 +78,17 @@
     box-sizing: border-box;
 }
 
-#cancel {
-    display: none;
-}
 .controls {
+    display: flex;
+    align-items: center;
+    gap: 5px;
     padding: 8px;
 }
+
+#cancel {
+    background-color: rgb(255, 100, 100)
+}
+#confirm {
+    background-color: rgb(100, 255, 100)
+}
+
