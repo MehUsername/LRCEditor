@@ -265,11 +265,11 @@ async function finishFile() {
     if (askSave.checked) {
         try {
             const handle = await window.showSaveFilePicker({
-                suggestedName: `${data.artist ? `${data.artist} - ` : ""}${data.title}.lrc`,
+                suggestedName: `${data.artist ? `${data.artist} - ` : ""}${data.title}`,
                 types: [{
                     description: 'LRC File',
                     accept: {
-                        'text/plain': ['.lrc', '.txt'],
+                        'text/plain': ['.lrc'],
                     },
                 }],
             });
