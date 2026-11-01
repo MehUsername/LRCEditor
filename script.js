@@ -269,7 +269,7 @@ async function finishFile() {
                 types: [{
                     description: 'LRC File',
                     accept: {
-                        'text/plain': ['.lrc'],
+                        'application/x-lrc: ['.lrc'],
                     },
                 }],
             });
